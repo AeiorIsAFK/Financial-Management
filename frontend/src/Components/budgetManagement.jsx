@@ -13,7 +13,7 @@ function budgetManagement() {
   const [date, setDate] = useState('')
   const [amount, setAmount] = useState(0)
   const [budgetType, setBudgetType] = useState('')
-
+  const [data, setData] = useState([])
   const socket = useSocket()
 
   const formatCurrency = (value) => {
@@ -24,44 +24,12 @@ function budgetManagement() {
   };
 
   const columns = [
-    { name: 'Report ID', selector: row => row.reportId },
-    { name: 'Report Date', selector: row => row.reportDate },
-    { name: 'Budget Amount', selector: row => formatCurrency(row.budgetAmount) },
+    { name: 'Report ID', selector: row => row._id },
+    { name: 'Report Date', selector: row => row.date },
+    { name: 'Budget Amount', selector: row => formatCurrency(row.amount) },
     { name: 'Budget Type', selector: row => row.budgetType },
   ];
   
-  const data = [
-    {
-      reportId: 'BGT001',
-      reportDate: '2024-11-01',
-      budgetAmount: 150000,
-      budgetType: 'Operating Expenses',
-    },
-    {
-      reportId: 'BGT002',
-      reportDate: '2024-11-02',
-      budgetAmount: 80000,
-      budgetType: 'Capital Expenditures',
-    },
-    {
-      reportId: 'BGT003',
-      reportDate: '2024-11-03',
-      budgetAmount: 25000,
-      budgetType: 'Emergency Reserve',
-    },
-    {
-      reportId: 'BGT004',
-      reportDate: '2024-11-05',
-      budgetAmount: 120000,
-      budgetType: 'Marketing',
-    },
-    {
-      reportId: 'BGT005',
-      reportDate: '2024-11-07',
-      budgetAmount: 50000,
-      budgetType: 'R&D (Research and Development)',
-    },
-  ];
 
   useEffect(() => {
     if (!socket){
@@ -69,13 +37,32 @@ function budgetManagement() {
       return
     };
 
-    socket.emit('test', {msg: 'testing'})
+    socket.emit('get-budget-records', {msg: 'get budget records'})
 
-    const handleTest = (response) => {
-      console.log(response)
+
+
+    const handlesNewBudget = (response) => {
+      alert(response.msg)
     }
 
-    socket.on('received-test', handleTest)
+    const handlesBudgetRecords = (response) => {
+      setData(response)
+    }
+
+    const handlesErrorBudget = (response) => {
+      alert(response.msg)
+    }
+
+
+    socket.on('error-budget-record', handlesErrorBudget)
+    socket.on('received-new-budget', handlesNewBudget)
+    socket.on('received-budget-records', handlesBudgetRecords)
+
+    return () => {
+      socket.off('received-new-budget')
+      socket.off('error-budget-record')
+      socket.off('received-budget-records')
+    }
   }, [socket])
   
 
@@ -96,6 +83,10 @@ const handleSubmit = () => {
     amount,
     budgetType
   })
+
+  socket.emit('add-budget', {    date,
+    amount,
+    budgetType})
 }
 
   return (

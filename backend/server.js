@@ -7,6 +7,8 @@ const { Server } = require('socket.io')
 const  http  = require('http')
 
 const authRoutes = require('./routes/authRoutes');
+const budgetSocket = require('./controllers/budgetSocketController')
+const insuranceClaimSocket = require('./controllers/insuranceClaimsSocketController')
 
 
 //Middlewares
@@ -41,6 +43,9 @@ mongoose.connect(process.env.MONGO_URI)
 
     io.on('connection', (socket) => {
       console.log(`Client Connected: ${socket.id}`)
+
+      budgetSocket(socket, io)
+      insuranceClaimSocket(socket, io)
 
 
       socket.on('disconnect', () => {

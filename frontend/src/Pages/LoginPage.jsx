@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import backgroundImg from '../../assets/Nodado.jpg';  
@@ -8,11 +8,18 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const checkToken = localStorage.getItem('token')
+    if(checkToken){
+      navigate('/dashboard')
+    }
+  }, [])
+
   const handleLogin = (e) => {
     e.preventDefault();
     
     // POST request to the backend
-    axios.post('http://localhost:5000/api/login', { username, password })
+    axios.post('http://localhost:4000/auth-api/login', { username, password })
       .then(response => {
         if (response.data.success) {
           // Store the JWT token in localStorage

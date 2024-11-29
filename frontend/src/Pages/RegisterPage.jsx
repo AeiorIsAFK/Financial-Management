@@ -29,7 +29,7 @@ const RegisterPage = () => {
     };
 
     // POST request to the backend
-    axios.post('http://localhost:5000/api/register', userData)
+    axios.post('http://localhost:4000/auth-api/register', userData)
       .then(response => {
         if (response.data.success) {
           // Store the JWT token in localStorage
@@ -40,7 +40,18 @@ const RegisterPage = () => {
           alert('Registration failed');
         }
       })
-      .catch(error => console.error('Register error:', error));
+      .catch(error => {
+        if(error.response){
+          alert(error.response.data.message)
+        }
+        else if(error.request){
+          console.error(error.request)
+        }
+        else{
+          console.error('Something went error')
+          alert("An error occured. Please try again.")
+        }
+      });
   };
 
   return (
